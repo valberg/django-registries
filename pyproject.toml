@@ -61,7 +61,7 @@ matrix.python.dependencies = [
 ]
 
 [tool.hatch.envs.default.scripts]
-cov = "pytest --cov-report=term-missing --cov-config=pyproject.toml --cov=django_registries --cov=tests --cov=append {args}"
+cov = "pytest -s --cov-report=term-missing --cov-config=pyproject.toml --cov=django_registries --cov=tests --cov=append {args}"
 no-cov = "cov --no-cov {args}"
 typecheck = "mypy --config-file=pyproject.toml ."
 
