@@ -1,7 +1,8 @@
 from django.db import models
 
+from django_registries.registry import ChoicesField
 from tests.foos.registry import FooRegistry
 
 
 class Foo(models.Model):
-    foo_type = FooRegistry.choices_field(max_length=100)
+    foo_type = ChoicesField(registry=FooRegistry, max_length=100)

@@ -60,22 +60,40 @@ class Registry:
     def get_items(cls) -> list[tuple[str, type["Implementation"]]]:
         return list(cls.implementations.items())
 
-    @classmethod
-    def choices_field(cls, **kwargs):
-        class ChoicesField(models.CharField):
-            def contribute_to_class(self, model_cls, name, **kwargs):
-                cls.choices_fields.append((name, model_cls))
-                super().contribute_to_class(model_cls, name, **kwargs)
 
-        return ChoicesField(**kwargs)
+class ChoicesField(models.CharField):
+    registry: type[Registry]
 
+    def __init__(self, *args, registry: type[Registry], **kwargs) -> None:
+        if not isinstance(registry, type) or not issubclass(registry, Registry):
+            raise ValueError(
+                "ChoicesField keyword argument 'registry' requires a class "
+                "which subclasses Registry.",
+            )
 
-"""
-Integration = self.get_model("Integration")
-Integration._meta.get_field(
-    "slug",
-).choices = IntegrationRegistry.get_choices()
-"""
+        self.registry = registry
+        super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        kwargs["registry"] = self.registry
+        return name, path, args, kwargs
+
+    @property
+    def non_db_attrs(self):
+        return super().non_db_attrs + ("registry",)
+
+    def contribute_to_class(self, model_cls, name, **kwargs) -> None:
+        self.registry.choices_fields.append((name, model_cls))
+
+        @property
+        def getter(_self):
+            value = getattr(_self, name)
+            return self.registry.get(slug=value)
+
+        setattr(model_cls, f"{name}_implementation", getter)
+
+        super().contribute_to_class(model_cls, name, **kwargs)
 
 
 class Implementation:
