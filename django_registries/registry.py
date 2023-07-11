@@ -60,6 +60,10 @@ class Registry:
     def get_items(cls) -> list[tuple[str, type["Implementation"]]]:
         return list(cls.implementations.items())
 
+    @classmethod
+    def choices_field(cls, *args, **kwargs):
+        return ChoicesField(*args, registry=cls, **kwargs)
+
 
 class ChoicesField(models.CharField):
     registry: type[Registry]
