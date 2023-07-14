@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "django-registries"
 description = 'django-registries is a structured way to create registries of implementations.'
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 license = "MIT"
 keywords = []
 authors = [
@@ -15,6 +15,7 @@ authors = [
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: Implementation :: CPython",
@@ -49,7 +50,7 @@ dependencies = [
 ]
 
 [[tool.hatch.envs.tests.matrix]]
-python = ["3.10", "3.11"]
+python = ["3.9", "3.10", "3.11"]
 django = ["3.2", "4.0", "4.1", "4.2"]
 
 [tool.hatch.envs.tests.overrides]
