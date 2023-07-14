@@ -2,6 +2,7 @@ import pytest
 from django.db import models
 
 from django_registries.registry import ChoicesField
+from django_registries.registry import ImplementationNotFound
 from tests.foo_implementation.foos import Bar
 from tests.foos.models import Foo
 from tests.foos.registry import FooRegistry
@@ -50,3 +51,8 @@ def test_non_registry_raises_value_error():
 
         class Baz(models.Model):
             foo = ChoicesField(registry="wrong", max_length=100)
+
+
+def test_no_implementation_found():
+    with pytest.raises(ImplementationNotFound):
+        FooRegistry.get(slug="doesnotexist")
