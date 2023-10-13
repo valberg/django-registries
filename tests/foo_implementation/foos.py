@@ -1,9 +1,8 @@
-from tests.foos.registry import FooImplementation
+from tests.foos.registry import FooInterface
 
 
-class Bar(FooImplementation):
+class Bar(FooInterface):
     slug = "bar"
 
-    @classmethod
-    def process_foo(cls):
+    def process_foo(self):
         return "processed"

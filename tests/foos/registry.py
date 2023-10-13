@@ -1,14 +1,13 @@
-
-
-from django_registries.registry import Implementation, Registry
+from django_registries.registry import Interface
+from django_registries.registry import Registry
 
 
 class FooRegistry(Registry):
     implementations_module = "foos"
 
 
-class FooImplementation(Implementation):
-    slug = "foo" 
+class FooInterface(Interface):
+    slug = "foo"
     registry = FooRegistry
 
     def process_foo(self):

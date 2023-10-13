@@ -33,7 +33,7 @@ class ImplementationNotFound(KeyError):
 class Registry:
     """ """
 
-    implementations: dict[str, type["Implementation"]]
+    implementations: dict[str, type["Interface"]]
     implementations_module: str
 
     choices_fields: list[tuple[str, type[models.Model]]]
@@ -45,7 +45,7 @@ class Registry:
         registries_registry.append(cls)
 
     @classmethod
-    def register(cls, implementation: type["Implementation"]) -> None:
+    def register(cls, implementation: type["Interface"]) -> None:
         """ """
         cls.implementations[implementation.slug] = implementation
 
@@ -60,13 +60,13 @@ class Registry:
         return list(zip(keys, keys))
 
     @classmethod
-    def get(cls, *, slug: str) -> type["Implementation"]:
+    def get(cls, *, slug: str) -> "Interface":
         if slug not in cls.implementations:
             raise ImplementationNotFound(f"No implementation exists for slug '{slug}'")
-        return cls.implementations[slug]
+        return cls.implementations[slug]()
 
     @classmethod
-    def get_items(cls) -> list[tuple[str, type["Implementation"]]]:
+    def get_items(cls) -> list[tuple[str, type["Interface"]]]:
         return list(cls.implementations.items())
 
     @classmethod
@@ -104,7 +104,7 @@ class ChoicesField(models.CharField):
     ) -> None:
         self.registry.choices_fields.append((name, model_cls))
 
-        def getter(_self: type) -> type[Implementation]:
+        def getter(_self: type) -> type[Interface]:
             value = getattr(_self, name)
             return self.registry.get(slug=value)
 
@@ -113,7 +113,7 @@ class ChoicesField(models.CharField):
         super().contribute_to_class(model_cls, name, **kwargs)
 
 
-class Implementation:
+class Interface:
     """ """
 
     slug: str

@@ -28,7 +28,7 @@ def test_get_choices():
 
 
 def test_get():
-    assert FooRegistry.get(slug="bar") == Bar
+    assert isinstance(FooRegistry.get(slug="bar"), Bar)
 
 
 def test_choices_set_on_field():
@@ -42,7 +42,7 @@ def test_access_implementation_via_FIELD_implementation():
     foo = Foo.objects.create(
         foo_type=Bar.slug,
     )
-    assert foo.foo_type_implementation == Bar
+    assert isinstance(foo.foo_type_implementation, Bar)
     assert foo.foo_type_implementation.process_foo() == "processed"
 
 
