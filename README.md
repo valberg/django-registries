@@ -10,10 +10,15 @@
 
 **django-registries** is a structured way to create registries of implementations.
 
+Let’s say you have a project that needs to be able to send emails. You want to be able to use different email 
+backends, depending on the situation. You could create a registry for that and register different implementations 
+of the EmailBackendInterface. Then, you could use the registry to get the implementation you want to use.
 
 **Table of Contents**
 
 - [Installation](#installation)
+- [Development](#development)
+- [Documentation](#documentation)
 - [License](#license)
 
 ## Installation
@@ -31,6 +36,10 @@ pip install hatch
 hatch run tests:cov
 hatch run tests:typecheck
 ```
+
+## Documentation
+
+[https://django-registries.readthedocs.io/en/latest/](https://django-registries.readthedocs.io/en/latest/)
 
 ## License
 
