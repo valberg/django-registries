@@ -96,6 +96,10 @@ class ChoicesField(models.CharField):
     def non_db_attrs(self) -> tuple[str, ...]:
         return super().non_db_attrs + ("registry",)
 
+    @non_db_attrs.setter
+    def non_db_attrs(self, value) -> None:
+        self.non_db_attrs = value
+
     def contribute_to_class(
         self,
         model_cls: type[Model],
