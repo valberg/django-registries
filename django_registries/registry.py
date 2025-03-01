@@ -30,7 +30,7 @@ class ImplementationNotFound(KeyError):
     pass
 
 
-class Registry[Intf : "Interface"]:
+class Registry[Intf: Interface]:
     """ """
 
     implementations: dict[str, type[Intf]]
