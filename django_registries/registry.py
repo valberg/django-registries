@@ -30,10 +30,10 @@ class ImplementationNotFound(KeyError):
     pass
 
 
-class Registry:
+class Registry[Intf: Interface]:
     """ """
 
-    implementations: dict[str, type["Interface"]]
+    implementations: dict[str, type[Intf]]
     implementations_module: str
 
     choices_fields: list[tuple[str, type[models.Model]]]
@@ -45,7 +45,7 @@ class Registry:
         registries_registry.append(cls)
 
     @classmethod
-    def register(cls, implementation: type["Interface"]) -> None:
+    def register(cls, implementation: type[Intf]) -> None:
         """ """
         cls.implementations[implementation.slug] = implementation
 
@@ -60,13 +60,13 @@ class Registry:
         return list(zip(keys, keys))
 
     @classmethod
-    def get(cls, *, slug: str) -> "Interface":
+    def get(cls, *, slug: str) -> Intf:
         if slug not in cls.implementations:
             raise ImplementationNotFound(f"No implementation exists for slug '{slug}'")
         return cls.implementations[slug]()
 
     @classmethod
-    def get_items(cls) -> list[tuple[str, type["Interface"]]]:
+    def get_items(cls) -> list[tuple[str, type[Intf]]]:
         return list(cls.implementations.items())
 
     @classmethod
@@ -95,6 +95,10 @@ class ChoicesField(models.CharField):
     @property
     def non_db_attrs(self) -> tuple[str, ...]:
         return super().non_db_attrs + ("registry",)
+
+    @non_db_attrs.setter
+    def non_db_attrs(self, value) -> None:
+        self.non_db_attrs = value
 
     def contribute_to_class(
         self,
