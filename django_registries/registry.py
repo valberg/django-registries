@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Generic, TypeVar
+from typing import Any
+from typing import Generic
+from typing import TypeVar
 
 from django.db import models
 from django.db.models.base import Model
 from django.utils.module_loading import autodiscover_modules
 
-Intf = TypeVar('Intf', bound='Interface')
+Intf = TypeVar("Intf", bound="Interface")
 
-registries_registry: list[type["Registry[Any]"]] = []
+registries_registry: list[type[Registry[Any]]] = []
 
 
 def discover_registries() -> None:
@@ -61,14 +63,19 @@ class Registry(Generic[Intf]):
         return list(cls.implementations.items())
 
     @classmethod
-    def choices_field(cls, *args: Any, **kwargs: Any) -> "ChoicesField":
+    def choices_field(cls, *args: Any, **kwargs: Any) -> ChoicesField:
         return ChoicesField(*args, registry=cls, **kwargs)
 
 
 class ChoicesField(models.CharField):
     registry: type[Registry[Any]]
 
-    def __init__(self, *args: Any, registry: type[Registry[Any]], **kwargs: Any) -> None:
+    def __init__(
+        self,
+        *args: Any,
+        registry: type[Registry[Any]],
+        **kwargs: Any,
+    ) -> None:
         if not isinstance(registry, type) or not issubclass(registry, Registry):
             raise ValueError(
                 "ChoicesField keyword argument 'registry' requires a class "
@@ -76,6 +83,7 @@ class ChoicesField(models.CharField):
             )
 
         self.registry = registry
+        kwargs["choices"] = registry.get_choices
         super().__init__(*args, **kwargs)
 
     def deconstruct(self) -> Any:
