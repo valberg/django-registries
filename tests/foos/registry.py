@@ -2,7 +2,7 @@ from django_registries.registry import Interface
 from django_registries.registry import Registry
 
 
-class FooRegistry(Registry):
+class FooRegistry(Registry["FooInterface"]):
     implementations_module = "foos"
 
 

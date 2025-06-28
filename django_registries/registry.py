@@ -1,11 +1,14 @@
-from typing import Any
+from __future__ import annotations
 
-from django.apps import apps
+from typing import Any, Generic, TypeVar
+
 from django.db import models
 from django.db.models.base import Model
 from django.utils.module_loading import autodiscover_modules
 
-registries_registry: list[type["Registry"]] = []
+Intf = TypeVar('Intf', bound='Interface')
+
+registries_registry: list[type["Registry[Any]"]] = []
 
 
 def discover_registries() -> None:
@@ -15,23 +18,11 @@ def discover_registries() -> None:
         registry.discover_implementations()
 
 
-def update_choices_fields() -> None:
-    for registry in registries_registry:
-        for field_name, model_class in registry.choices_fields:
-            ModelClass = apps.get_model(
-                model_class._meta.app_label,
-                model_class._meta.model_name,
-            )
-            field = ModelClass._meta.get_field(field_name)
-            field.choices = registry.get_choices()
-
-
 class ImplementationNotFound(KeyError):
     pass
 
 
-class Registry[Intf: Interface]:
-    """ """
+class Registry(Generic[Intf]):
 
     implementations: dict[str, type[Intf]]
     implementations_module: str
@@ -75,9 +66,9 @@ class Registry[Intf: Interface]:
 
 
 class ChoicesField(models.CharField):
-    registry: type[Registry]
+    registry: type[Registry[Any]]
 
-    def __init__(self, *args: Any, registry: type[Registry], **kwargs: Any) -> None:
+    def __init__(self, *args: Any, registry: type[Registry[Any]], **kwargs: Any) -> None:
         if not isinstance(registry, type) or not issubclass(registry, Registry):
             raise ValueError(
                 "ChoicesField keyword argument 'registry' requires a class "
@@ -97,7 +88,7 @@ class ChoicesField(models.CharField):
         return super().non_db_attrs + ("registry",)
 
     @non_db_attrs.setter
-    def non_db_attrs(self, value) -> None:
+    def non_db_attrs(self, value: tuple[str, ...]) -> None:
         self.non_db_attrs = value
 
     def contribute_to_class(
@@ -121,7 +112,7 @@ class Interface:
     """ """
 
     slug: str
-    registry: type[Registry]
+    registry: type[Registry[Any]]
 
     def __init_subclass__(cls) -> None:
         """ """

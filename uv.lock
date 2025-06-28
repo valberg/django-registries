@@ -259,7 +259,7 @@ test = [
 [package.metadata]
 requires-dist = [
     { name = "coverage", extras = ["toml"], marker = "extra == 'test'", specifier = ">=7.9.1" },
-    { name = "django", specifier = ">=3.2" },
+    { name = "django", specifier = ">=5.1" },
     { name = "django-stubs", marker = "extra == 'test'", specifier = ">=5.2.1" },
     { name = "furo", marker = "extra == 'docs'", specifier = "==2024.8.6" },
     { name = "mypy", marker = "extra == 'test'", specifier = ">=1.16.1" },
