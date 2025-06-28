@@ -32,9 +32,10 @@ pip install django-registries
 ```console
 git clone
 cd django-registries
-pip install hatch
-hatch run tests:cov
-hatch run tests:typecheck
+pip install uv
+uv sync --extra test
+uv run pytest -s --cov-report=term-missing --cov-config=pyproject.toml --cov=django_registries --cov=tests --cov=append
+uv run mypy --config-file=pyproject.toml .
 ```
 
 ## Documentation
