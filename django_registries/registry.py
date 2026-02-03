@@ -124,7 +124,7 @@ class ChoicesField(models.CharField):
         )
         max_length = 64
         while len(constraint_name) > max_length:
-            constraint_name = name[len(name) - max_length :]
+            constraint_name = constraint_name[:max_length]
 
         cls._meta.constraints = [
             *cls._meta.constraints,
