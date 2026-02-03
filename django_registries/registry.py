@@ -4,6 +4,7 @@ from typing import Any
 from typing import Generic
 from typing import TypeVar
 
+from django import VERSION as django_version
 from django.db import models
 from django.db.models.base import Model
 from django.utils.module_loading import autodiscover_modules
@@ -11,6 +12,8 @@ from django.utils.module_loading import autodiscover_modules
 Intf = TypeVar("Intf", bound="Interface")
 
 registries_registry: list[type[Registry[Any]]] = []
+
+condition = "check" if django_version[0:2] < (5, 1) else "condition"
 
 
 def discover_registries() -> None:
@@ -25,7 +28,6 @@ class ImplementationNotFound(KeyError):
 
 
 class Registry(Generic[Intf]):
-
     implementations: dict[str, type[Intf]]
     implementations_module: str
 
@@ -101,19 +103,35 @@ class ChoicesField(models.CharField):
 
     def contribute_to_class(
         self,
-        model_cls: type[Model],
+        cls: type[Model],
         name: str,
         **kwargs: Any,
     ) -> None:
-        self.registry.choices_fields.append((name, model_cls))
+        self.registry.choices_fields.append((name, cls))
 
         def getter(_self: type) -> type[Interface]:
             value = getattr(_self, name)
             return self.registry.get(slug=value)
 
-        setattr(model_cls, f"{name}_implementation", property(getter))
+        setattr(cls, f"{name}_implementation", property(getter))
 
-        super().contribute_to_class(model_cls, name, **kwargs)
+        constraint = models.Q(
+            **{f"{name}__in": [key for key, _value in self.registry.get_choices()]},
+        )
+
+        constraint_name = (
+            f"{cls._meta.app_label}_{cls.__name__}_{name}_{self.registry.__name__}"
+        )
+        max_length = 64
+        while len(constraint_name) > max_length:
+            constraint_name = constraint_name[:max_length]
+
+        cls._meta.constraints = [
+            *cls._meta.constraints,
+            models.CheckConstraint(**{condition: constraint, "name": constraint_name}),
+        ]
+
+        super().contribute_to_class(cls, name, **kwargs)
 
 
 class Interface:
